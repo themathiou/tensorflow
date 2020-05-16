@@ -4,18 +4,23 @@ const loadCSV = require('./load-csv');
 const CSVOptions = {
   shuffle: true,
   splitTest: 10,
-  dataColumns: ['lat', 'long'],
+  dataColumns: ['lat', 'long', 'sqft_lot'],
   labelColumns: ['price'],
 };
 
 function knn(features, labels, predictionPoint, k) {
+  const {mean, variance} = tf.moments(features, 0); // ): get y axis
+  const scaledPrediction = predictionPoint.sub(mean).div(variance.pow(0.5));
+
   return (
     features
-      .sub(predictionPoint)
+      .sub(mean) // Standardization Step
+      .div(variance.pow(0.5))
+      .sub(scaledPrediction) // Distance Calculation Step
       .pow(2)
       .sum(1)
       .pow(0.5)
-      .expandDims(1)
+      .expandDims(1) // rest KNN operations Step
       .concat(labels, 1)
       .unstack()
       .sort((a, b) => (a.get(0) > b.get(0) ? 1 : -1))
