@@ -30,5 +30,9 @@ let {features, labels, testLabels, testFeatures} = loadCSV('./kc_house_data.csv'
 features = tf.tensor(features);
 labels = tf.tensor(labels);
 
-const res = knn(features, labels, tf.tensor(testFeatures[0]), 10);
-console.log('Guess: ', res, testLabels[0][0]);
+testFeatures.forEach((testPoint, idx) => {
+  const res = knn(features, labels, tf.tensor(testPoint), 10);
+  const err = (testLabels[idx][0] - res) / testLabels[idx][0];
+
+  console.log(`Guess: ${res}, ${testLabels[idx][0]} | Error:  ${Number(err * 100).toFixed(2)}%`);
+});
